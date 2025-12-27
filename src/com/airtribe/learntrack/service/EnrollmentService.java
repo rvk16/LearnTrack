@@ -103,8 +103,11 @@ public class EnrollmentService {
     public Enrollment updateEnrollmentStatus(int enrollmentId, EnrollmentStatus status)
             throws EntityNotFoundException {
         Enrollment enrollment = getEnrollmentById(enrollmentId);
-        enrollment.setStatus(status);
-        enrollmentRepository.update(enrollment);
+        // Only update if the status is different
+        if (enrollment.getStatus() != status) {
+            enrollment.setStatus(status);
+            enrollmentRepository.update(enrollment);
+        }
         return enrollment;
     }
 

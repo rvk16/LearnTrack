@@ -4,6 +4,7 @@ import com.airtribe.learntrack.entity.Course;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * In-memory data storage for Course entities.
@@ -19,8 +20,12 @@ public class CourseRepository {
     /**
      * Adds a new course to the repository.
      * @param course the course to add
+     * @throws IllegalArgumentException if course is null
      */
     public void save(Course course) {
+        if (course == null) {
+            throw new IllegalArgumentException("Course cannot be null");
+        }
         courses.add(course);
     }
 
@@ -30,12 +35,9 @@ public class CourseRepository {
      * @return Optional containing the course if found, empty otherwise
      */
     public Optional<Course> findById(int id) {
-        for (Course course : courses) {
-            if (course.getId() == id) {
-                return Optional.of(course);
-            }
-        }
-        return Optional.empty();
+        return courses.stream()
+                .filter(course -> course.getId() == id)
+                .findFirst();
     }
 
     /**
@@ -51,13 +53,9 @@ public class CourseRepository {
      * @return list of active courses
      */
     public List<Course> findAllActive() {
-        List<Course> activeCourses = new ArrayList<>();
-        for (Course course : courses) {
-            if (course.isActive()) {
-                activeCourses.add(course);
-            }
-        }
-        return activeCourses;
+        return courses.stream()
+                .filter(Course::isActive)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -107,13 +105,13 @@ public class CourseRepository {
      * @return list of matching courses
      */
     public List<Course> findByNameContaining(String name) {
-        List<Course> result = new ArrayList<>();
-        for (Course course : courses) {
-            if (course.getCourseName() != null &&
-                course.getCourseName().toLowerCase().contains(name.toLowerCase())) {
-                result.add(course);
-            }
+        if (name == null) {
+            return new ArrayList<>();
         }
-        return result;
+        String searchName = name.toLowerCase();
+        return courses.stream()
+                .filter(course -> course.getCourseName() != null &&
+                        course.getCourseName().toLowerCase().contains(searchName))
+                .collect(Collectors.toList());
     }
 }

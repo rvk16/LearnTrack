@@ -5,6 +5,7 @@ import com.airtribe.learntrack.enums.EnrollmentStatus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * In-memory data storage for Enrollment entities.
@@ -20,8 +21,12 @@ public class EnrollmentRepository {
     /**
      * Adds a new enrollment to the repository.
      * @param enrollment the enrollment to add
+     * @throws IllegalArgumentException if enrollment is null
      */
     public void save(Enrollment enrollment) {
+        if (enrollment == null) {
+            throw new IllegalArgumentException("Enrollment cannot be null");
+        }
         enrollments.add(enrollment);
     }
 
@@ -31,12 +36,9 @@ public class EnrollmentRepository {
      * @return Optional containing the enrollment if found, empty otherwise
      */
     public Optional<Enrollment> findById(int id) {
-        for (Enrollment enrollment : enrollments) {
-            if (enrollment.getId() == id) {
-                return Optional.of(enrollment);
-            }
-        }
-        return Optional.empty();
+        return enrollments.stream()
+                .filter(enrollment -> enrollment.getId() == id)
+                .findFirst();
     }
 
     /**
@@ -53,13 +55,9 @@ public class EnrollmentRepository {
      * @return list of enrollments for the student
      */
     public List<Enrollment> findByStudentId(int studentId) {
-        List<Enrollment> result = new ArrayList<>();
-        for (Enrollment enrollment : enrollments) {
-            if (enrollment.getStudentId() == studentId) {
-                result.add(enrollment);
-            }
-        }
-        return result;
+        return enrollments.stream()
+                .filter(enrollment -> enrollment.getStudentId() == studentId)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -68,13 +66,9 @@ public class EnrollmentRepository {
      * @return list of enrollments for the course
      */
     public List<Enrollment> findByCourseId(int courseId) {
-        List<Enrollment> result = new ArrayList<>();
-        for (Enrollment enrollment : enrollments) {
-            if (enrollment.getCourseId() == courseId) {
-                result.add(enrollment);
-            }
-        }
-        return result;
+        return enrollments.stream()
+                .filter(enrollment -> enrollment.getCourseId() == courseId)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -83,13 +77,9 @@ public class EnrollmentRepository {
      * @return list of enrollments with the specified status
      */
     public List<Enrollment> findByStatus(EnrollmentStatus status) {
-        List<Enrollment> result = new ArrayList<>();
-        for (Enrollment enrollment : enrollments) {
-            if (enrollment.getStatus() == status) {
-                result.add(enrollment);
-            }
-        }
-        return result;
+        return enrollments.stream()
+                .filter(enrollment -> enrollment.getStatus() == status)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -99,14 +89,11 @@ public class EnrollmentRepository {
      * @return true if an active enrollment exists, false otherwise
      */
     public boolean existsActiveEnrollment(int studentId, int courseId) {
-        for (Enrollment enrollment : enrollments) {
-            if (enrollment.getStudentId() == studentId &&
-                enrollment.getCourseId() == courseId &&
-                enrollment.getStatus() == EnrollmentStatus.ACTIVE) {
-                return true;
-            }
-        }
-        return false;
+        return enrollments.stream()
+                .anyMatch(enrollment ->
+                        enrollment.getStudentId() == studentId &&
+                        enrollment.getCourseId() == courseId &&
+                        enrollment.getStatus() == EnrollmentStatus.ACTIVE);
     }
 
     /**

@@ -1,11 +1,17 @@
 package com.airtribe.learntrack.util;
 
 import com.airtribe.learntrack.exception.InvalidInputException;
+import java.util.regex.Pattern;
 
 /**
  * Utility class for validating user input.
  */
 public class InputValidator {
+
+    // Email validation regex pattern
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+        "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
+    );
 
     // Private constructor to prevent instantiation
     private InputValidator() {
@@ -24,7 +30,7 @@ public class InputValidator {
     }
 
     /**
-     * Validates that an email has a basic valid format.
+     * Validates that an email has a valid format using regex.
      * @param email the email to validate
      * @throws InvalidInputException if validation fails
      */
@@ -32,7 +38,7 @@ public class InputValidator {
         if (email == null || email.trim().isEmpty()) {
             return; // Email is optional
         }
-        if (!email.contains("@") || !email.contains(".")) {
+        if (!EMAIL_PATTERN.matcher(email.trim()).matches()) {
             throw new InvalidInputException("email", "must be a valid email format");
         }
     }
@@ -69,6 +75,9 @@ public class InputValidator {
      * @throws InvalidInputException if parsing fails
      */
     public static int parseInteger(String value, String fieldName) throws InvalidInputException {
+        if (value == null) {
+            throw new InvalidInputException(fieldName, "must be a valid number");
+        }
         try {
             return Integer.parseInt(value.trim());
         } catch (NumberFormatException e) {

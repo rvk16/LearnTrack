@@ -4,6 +4,7 @@ import com.airtribe.learntrack.entity.Student;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * In-memory data storage for Student entities.
@@ -19,8 +20,12 @@ public class StudentRepository {
     /**
      * Adds a new student to the repository.
      * @param student the student to add
+     * @throws IllegalArgumentException if student is null
      */
     public void save(Student student) {
+        if (student == null) {
+            throw new IllegalArgumentException("Student cannot be null");
+        }
         students.add(student);
     }
 
@@ -30,12 +35,9 @@ public class StudentRepository {
      * @return Optional containing the student if found, empty otherwise
      */
     public Optional<Student> findById(int id) {
-        for (Student student : students) {
-            if (student.getId() == id) {
-                return Optional.of(student);
-            }
-        }
-        return Optional.empty();
+        return students.stream()
+                .filter(student -> student.getId() == id)
+                .findFirst();
     }
 
     /**
@@ -51,13 +53,9 @@ public class StudentRepository {
      * @return list of active students
      */
     public List<Student> findAllActive() {
-        List<Student> activeStudents = new ArrayList<>();
-        for (Student student : students) {
-            if (student.isActive()) {
-                activeStudents.add(student);
-            }
-        }
-        return activeStudents;
+        return students.stream()
+                .filter(Student::isActive)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -107,12 +105,9 @@ public class StudentRepository {
      * @return list of students in the specified batch
      */
     public List<Student> findByBatch(String batch) {
-        List<Student> result = new ArrayList<>();
-        for (Student student : students) {
-            if (student.getBatch() != null && student.getBatch().equalsIgnoreCase(batch)) {
-                result.add(student);
-            }
-        }
-        return result;
+        return students.stream()
+                .filter(student -> student.getBatch() != null &&
+                        student.getBatch().equalsIgnoreCase(batch))
+                .collect(Collectors.toList());
     }
 }
