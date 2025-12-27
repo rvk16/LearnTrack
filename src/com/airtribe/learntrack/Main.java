@@ -405,7 +405,8 @@ public class Main {
 
             System.out.print("Duration in Weeks [" + course.getDurationInWeeks() + "]: ");
             String durationStr = scanner.nextLine();
-            int duration = durationStr.isEmpty() ? 0 : Integer.parseInt(durationStr.trim());
+            // Use -1 to indicate no change (service ignores values <= 0)
+            int duration = durationStr.isEmpty() ? -1 : Integer.parseInt(durationStr.trim());
 
             Course updated = courseService.updateCourse(id,
                     courseName.isEmpty() ? null : courseName,
